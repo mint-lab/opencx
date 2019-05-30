@@ -203,7 +203,7 @@ int testKeyCodes()
 
 int main(void)
 {
-    return testAlgorithm();
+    testAlgorithm();
     compareVideoWriter();
     testAngularOperations();
     testKeyCodes();
