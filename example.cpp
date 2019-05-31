@@ -201,7 +201,7 @@ int testKeyCodes()
     return 0;
 }
 
-int main(void)
+int main()
 {
     testAlgorithm();
     compareVideoWriter();
