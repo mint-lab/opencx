@@ -5,13 +5,13 @@
  * @version 0.2 (05/23/2019)
  */
 
-#include "opencvx.hpp"
+#include "opencx.hpp"
 #include <iostream>
 
 using namespace std;
 
-// An example to use 'cvx::Algorithm'
-class NoiseGenerator : public cvx::Algorithm
+// An example to use 'cx::Algorithm'
+class NoiseGenerator : public cx::Algorithm
 {
 public:
     NoiseGenerator() : m_rng(cv::getTickCount())
@@ -25,18 +25,18 @@ public:
     // After implementing 'readParam()', it is possible to configure internal parameters without defining their individual setters.
     virtual int readParam(const cv::FileNode& fn)
     {
-        int n_read = cvx::Algorithm::readParam(fn);
-        CVX_LOAD_PARAM_COUNT(fn, "name", m_name, n_read);                   // Default: "Normal"
-        CVX_LOAD_PARAM_COUNT(fn, "uniform_range", m_uniform_range, n_read); // Default: (0, 0)
-        CVX_LOAD_PARAM_COUNT(fn, "gaussian_mu", m_gauss_mean, n_read);      // Default: 0
-        CVX_LOAD_PARAM_COUNT(fn, "gaussian_sigma", m_gauss_stdev, n_read);  // Default: 1
+        int n_read = cx::Algorithm::readParam(fn);
+        CX_LOAD_PARAM_COUNT(fn, "name", m_name, n_read);                    // Default: "Normal"
+        CX_LOAD_PARAM_COUNT(fn, "uniform_range", m_uniform_range, n_read);  // Default: (0, 0)
+        CX_LOAD_PARAM_COUNT(fn, "gaussian_mu", m_gauss_mean, n_read);       // Default: 0
+        CX_LOAD_PARAM_COUNT(fn, "gaussian_sigma", m_gauss_stdev, n_read);   // Default: 1
         return n_read;
     }
 
     // After implementing 'writeParam()' and 'readParam()', it is possible to save and load the internal parameters in a file.
     virtual bool writeParam(cv::FileStorage& fs) const
     {
-        if (cvx::Algorithm::writeParam(fs))
+        if (cx::Algorithm::writeParam(fs))
         {
             fs << "name" << m_name;
             fs << "uniform_range" << m_uniform_range;
@@ -79,7 +79,7 @@ pair<double, double> calcMeanVar(NoiseGenerator& generator, int n)
 
 int testAlgorithm(const char* filename = "noise_generator.yml", int n = 1000)
 {
-    cout << "### Test cvx::Algorithm" << endl;
+    cout << "### Test cx::Algorithm" << endl;
     NoiseGenerator generator;
 
     // Test #1
@@ -148,11 +148,11 @@ int compareVideoWriter(const string postfix = "example.avi", int frame = 100, do
     cv::VideoWriter cv_writer;
     if (!cv_writer.open("cv_" + postfix, cv::VideoWriter::fourcc('X', 'V', 'I', 'D'), fps, cv::Size(640, 480), true)) return -1;
     for (auto img = video.begin(); img != video.end(); img++) cv_writer << *img; 
-    // Make a video file using 'cvx::VideoWriter'
-    cvx::VideoWriter cvx_writer;
-    if (!cvx_writer.open("cvx_" + postfix, fps)) return -1;
+    // Make a video file using 'cx::VideoWriter'
+    cx::VideoWriter cx_writer;
+    if (!cx_writer.open("cx_" + postfix, fps)) return -1;
     for (auto img = video.begin(); img != video.end(); img++)
-        cvx_writer << *img;
+        cx_writer << *img;
 
     return 0;
 }
@@ -160,19 +160,19 @@ int compareVideoWriter(const string postfix = "example.avi", int frame = 100, do
 int testAngularOperations()
 {
     cout << "### Angular Conversion" << endl;
-    cout << "* CV_PI / 2 [rad] == " << cvx::cvtRad2Deg(CV_PI / 2) << " [deg]." << endl;
-    cout << "*        90 [deg] == CV_PI / " << CV_PI / cvx::cvtDeg2Rad(90) << " [rad]." << endl;
+    cout << "* CV_PI / 2 [rad] == " << cx::cvtRad2Deg(CV_PI / 2) << " [deg]." << endl;
+    cout << "*        90 [deg] == CV_PI / " << CV_PI / cx::cvtDeg2Rad(90) << " [rad]." << endl;
     cout << endl;
     cout << "### Angular Trimming" << endl;
-    cout << "*    2 * CV_PI [rad] == " << cvx::trimRad(2 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
-    cout << "*  1.5 * CV_PI [rad] == " << cvx::trimRad(1.5 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
-    cout << "*        CV_PI [rad] == " << cvx::trimRad(CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
-    cout << "*  0.5 * CV_PI [rad] == " << cvx::trimRad(0.5 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
-    cout << "*            0 [rad] == " << cvx::trimRad(0) / CV_PI << " * CV_PI [rad]." << endl;
-    cout << "* -0.5 * CV_PI [rad] == " << cvx::trimRad(-0.5 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
-    cout << "*       -CV_PI [rad] == " << cvx::trimRad(-CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
-    cout << "* -1.5 * CV_PI [rad] == " << cvx::trimRad(-1.5 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
-    cout << "*   -2 * CV_PI [rad] == " << cvx::trimRad(-2 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
+    cout << "*    2 * CV_PI [rad] == " << cx::trimRad(2 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
+    cout << "*  1.5 * CV_PI [rad] == " << cx::trimRad(1.5 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
+    cout << "*        CV_PI [rad] == " << cx::trimRad(CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
+    cout << "*  0.5 * CV_PI [rad] == " << cx::trimRad(0.5 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
+    cout << "*            0 [rad] == " << cx::trimRad(0) / CV_PI << " * CV_PI [rad]." << endl;
+    cout << "* -0.5 * CV_PI [rad] == " << cx::trimRad(-0.5 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
+    cout << "*       -CV_PI [rad] == " << cx::trimRad(-CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
+    cout << "* -1.5 * CV_PI [rad] == " << cx::trimRad(-1.5 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
+    cout << "*   -2 * CV_PI [rad] == " << cx::trimRad(-2 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
     cout << endl;
     return 0;
 }
@@ -185,18 +185,18 @@ int testKeyCodes()
         cv::imshow("Key Codes for cv::waitKeyEx()", cv::Mat::zeros(320, 240, CV_8U));
         int key = cv::waitKeyEx();
         cout << "* Key code " << key;
-        if (key == cvx::KEY_LF) cout << " is defined as 'cvx::KEY_LF'." << endl;
-        else if (key == cvx::KEY_CR) cout << " is defined as 'cvx::KEY_CR'." << endl;
-        else if (key == cvx::KEY_TAB) cout << " is defined as 'cvx::KEY_TAB'." << endl;
-        else if (key == cvx::KEY_ESC) cout << " is defined as 'cvx::KEY_ESC'." << endl;
-        else if (key == cvx::KEY_SPACE) cout << " is defined as 'cvx::KEY_SPACE'." << endl;
-        else if (key == cvx::KEY_UP) cout << " is defined as 'cvx::KEY_UP'." << endl;
-        else if (key == cvx::KEY_DOWN) cout << " is defined as 'cvx::KEY_DOWN'." << endl;
-        else if (key == cvx::KEY_LEFT) cout << " is defined as 'cvx::KEY_LEFT'." << endl;
-        else if (key == cvx::KEY_RIGHT) cout << " is defined as 'cvx::KEY_RIGHT'." << endl;
+        if (key == cx::KEY_LF) cout << " is defined as 'cx::KEY_LF'." << endl;
+        else if (key == cx::KEY_CR) cout << " is defined as 'cx::KEY_CR'." << endl;
+        else if (key == cx::KEY_TAB) cout << " is defined as 'cx::KEY_TAB'." << endl;
+        else if (key == cx::KEY_ESC) cout << " is defined as 'cx::KEY_ESC'." << endl;
+        else if (key == cx::KEY_SPACE) cout << " is defined as 'cx::KEY_SPACE'." << endl;
+        else if (key == cx::KEY_UP) cout << " is defined as 'cx::KEY_UP'." << endl;
+        else if (key == cx::KEY_DOWN) cout << " is defined as 'cx::KEY_DOWN'." << endl;
+        else if (key == cx::KEY_LEFT) cout << " is defined as 'cx::KEY_LEFT'." << endl;
+        else if (key == cx::KEY_RIGHT) cout << " is defined as 'cx::KEY_RIGHT'." << endl;
         else cout << " is not defined." << endl;
 
-        if (key == cvx::KEY_ESC) break;
+        if (key == cx::KEY_ESC) break;
     }
     return 0;
 }
