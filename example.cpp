@@ -1,5 +1,5 @@
 /**
- * An example of CVX
+ * An example of OpenCX
  *
  * @author  Sunglok Choi (http://sites.google.com/site/sunglok)
  * @version 0.2 (05/23/2019)
@@ -132,7 +132,7 @@ int testAlgorithm(const char* filename = "noise_generator.yml", int n = 1000)
     return 0;
 }
 
-int compareVideoWriter(const string postfix = "example.avi", int frame = 100, double fps = 10)
+int compareVideoWriter(const string& postfix = "example.avi", int frame = 100, double fps = 10)
 {
     // Generate sample images
     vector<cv::Mat> video;
@@ -144,11 +144,12 @@ int compareVideoWriter(const string postfix = "example.avi", int frame = 100, do
         video.push_back(image);
     }
 
-    // Make a video file using 'cv::VideoWriter' which needs the size and channel of images in advance
+    // 1) Make a video file using 'cv::VideoWriter' which needs the size and channel of images in advance
     cv::VideoWriter cv_writer;
     if (!cv_writer.open("cv_" + postfix, cv::VideoWriter::fourcc('X', 'V', 'I', 'D'), fps, cv::Size(640, 480), true)) return -1;
     for (auto img = video.begin(); img != video.end(); img++) cv_writer << *img; 
-    // Make a video file using 'cx::VideoWriter'
+
+    // 2) Make a video file using 'cx::VideoWriter'
     cx::VideoWriter cx_writer;
     if (!cx_writer.open("cx_" + postfix, fps)) return -1;
     for (auto img = video.begin(); img != video.end(); img++)
@@ -173,6 +174,15 @@ int testAngularOperations()
     cout << "*       -CV_PI [rad] == " << cx::trimRad(-CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
     cout << "* -1.5 * CV_PI [rad] == " << cx::trimRad(-1.5 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
     cout << "*   -2 * CV_PI [rad] == " << cx::trimRad(-2 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
+    cout << endl;
+    return 0;
+}
+
+int testLowerCase(const cv::String& text = "OpenCX makes OpenCV v4 easier!")
+{
+    cout << "### String toLowerCase" << endl;
+    cout << "* Original text: " << text << endl;
+    cout << "* Transformed text: " << cx::toLowerCase(text) << endl;
     cout << endl;
     return 0;
 }
@@ -206,6 +216,7 @@ int main()
     testAlgorithm();
     compareVideoWriter();
     testAngularOperations();
+    testLowerCase();
     testKeyCodes();
     return 0;
 }

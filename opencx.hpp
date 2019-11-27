@@ -6,7 +6,7 @@
  * Just include the file to your project. It will work without complex configuration and dependency.
  * OpenCX is Beerware so that it is free to use and distribute.
  *
- * - Homepage: https://github.com/sunglok/cx
+ * - Homepage: https://github.com/sunglok/opencx
  *
  * @author  Sunglok Choi (http://sites.google.com/site/sunglok)
  * @version 0.2 (05/23/2019)
@@ -310,6 +310,18 @@ namespace cx
         if (radian >= CV_PI) radian -= 2 * CV_PI;
         if (radian < -CV_PI) radian += 2 * CV_PI;
         return radian;
+    }
+
+    /**
+     * Make the given string to its lower cases
+     * @param TeXt The given string
+     * @return The transformed string with lower cases
+     */
+    cv::String toLowerCase(const cv::String& TeXt)
+    {
+        cv::String text = TeXt;
+        std::transform(TeXt.begin(), TeXt.end(), text.begin(), [](unsigned char c) { return std::tolower(c); });
+        return text;
     }
 
     /** A color code for black */
