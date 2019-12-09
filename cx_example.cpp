@@ -36,15 +36,12 @@ public:
     // After implementing 'writeParam()' and 'readParam()', it is possible to save and load the internal parameters in a file.
     virtual bool writeParam(cv::FileStorage& fs) const
     {
-        if (cx::Algorithm::writeParam(fs))
-        {
-            fs << "name" << m_name;
-            fs << "uniform_range" << m_uniform_range;
-            fs << "gaussian_mu" << m_gauss_mean;
-            fs << "gaussian_sigma" << m_gauss_stdev;
-            return true;
-        }
-        return false;
+        if (!cx::Algorithm::writeParam(fs)) return false;
+        fs << "name" << m_name;
+        fs << "uniform_range" << m_uniform_range;
+        fs << "gaussian_mu" << m_gauss_mean;
+        fs << "gaussian_sigma" << m_gauss_stdev;
+        return true;
     }
 
     double getNoise() { return m_rng.uniform(m_uniform_range(0), m_uniform_range(1)) + m_gauss_mean + m_rng.gaussian(m_gauss_stdev); }
@@ -200,10 +197,6 @@ int testKeyCodes()
         else if (key == cx::KEY_TAB) cout << " is defined as 'cx::KEY_TAB'." << endl;
         else if (key == cx::KEY_ESC) cout << " is defined as 'cx::KEY_ESC'." << endl;
         else if (key == cx::KEY_SPACE) cout << " is defined as 'cx::KEY_SPACE'." << endl;
-        else if (key == cx::KEY_UP) cout << " is defined as 'cx::KEY_UP'." << endl;
-        else if (key == cx::KEY_DOWN) cout << " is defined as 'cx::KEY_DOWN'." << endl;
-        else if (key == cx::KEY_LEFT) cout << " is defined as 'cx::KEY_LEFT'." << endl;
-        else if (key == cx::KEY_RIGHT) cout << " is defined as 'cx::KEY_RIGHT'." << endl;
         else cout << " is not defined." << endl;
 
         if (key == cx::KEY_ESC) break;
