@@ -372,7 +372,7 @@ namespace cx
          * @param separator A character which separate each column
          * @return True if successful (false if failed)
          */
-        bool open(const char* csv_file, char separator = ',')
+        bool open(const std::string& csv_file, char separator = ',')
         {
             std::ifstream file(csv_file);
             if (!file.is_open()) return false;

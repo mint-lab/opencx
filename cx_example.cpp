@@ -129,7 +129,7 @@ int testAlgorithm(const char* filename = "noise_generator.yml", int n = 1000)
     return 0;
 }
 
-int compareVideoWriter(const string& postfix = "example.avi", int frame = 100, double fps = 10)
+int compareVideoWriter(const string& filename = "example.avi", int frame = 100, double fps = 10)
 {
     // Generate sample images
     vector<cv::Mat> video;
@@ -143,12 +143,12 @@ int compareVideoWriter(const string& postfix = "example.avi", int frame = 100, d
 
     // 1) Make a video file using 'cv::VideoWriter' which needs the size and channel of images in advance
     cv::VideoWriter cv_writer;
-    if (!cv_writer.open("cv_" + postfix, cv::VideoWriter::fourcc('X', 'V', 'I', 'D'), fps, cv::Size(640, 480), true)) return -1;
+    if (!cv_writer.open("cv_" + filename, cv::VideoWriter::fourcc('X', 'V', 'I', 'D'), fps, cv::Size(640, 480), true)) return -1;
     for (auto img = video.begin(); img != video.end(); img++) cv_writer << *img; 
 
     // 2) Make a video file using 'cx::VideoWriter'
     cx::VideoWriter cx_writer;
-    if (!cx_writer.open("cx_" + postfix, fps)) return -1;
+    if (!cx_writer.open("cx_" + filename, fps)) return -1;
     for (auto img = video.begin(); img != video.end(); img++)
         cx_writer << *img;
 
@@ -161,6 +161,7 @@ int testAngularOperations()
     cout << "* CV_PI / 2 [rad] == " << cx::cvtRad2Deg(CV_PI / 2) << " [deg]." << endl;
     cout << "*        90 [deg] == CV_PI / " << CV_PI / cx::cvtDeg2Rad(90) << " [rad]." << endl;
     cout << endl;
+
     cout << "### Angular Trimming" << endl;
     cout << "*    2 * CV_PI [rad] == " << cx::trimRad(2 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
     cout << "*  1.5 * CV_PI [rad] == " << cx::trimRad(1.5 * CV_PI) / CV_PI << " * CV_PI [rad]." << endl;
@@ -175,12 +176,44 @@ int testAngularOperations()
     return 0;
 }
 
-int testLowerCase(const cv::String& text = "OpenCX makes OpenCV v4 easier!")
+int testStringOperations(const string& text = "\t  OpenCX makes OpenCV v4 easier!\n  ")
 {
-    cout << "### String toLowerCase" << endl;
+    cout << "### String Trimming" << endl;
     cout << "* Original text: " << text << endl;
-    cout << "* Transformed text: " << cx::toLowerCase(text) << endl;
+    cout << "* Left-trimmed text: " << cx::trimLeft(text) << endl;
+    cout << "* Right-trimmed text: " << cx::trimRight(text) << endl;
+    cout << "* Both-trimmed text: " << cx::trimBoth(text) << endl;
     cout << endl;
+
+    cout << "### String toLowerCase" << endl;
+    cout << "* Original text: " << cx::trimBoth(text) << endl;
+    cout << "* Transformed text: " << cx::toLowerCase(cx::trimBoth(text)) << endl;
+    cout << endl;
+    return 0;
+}
+
+int testCSVReader(const string& filename = "cx_example.csv")
+{
+    // Generate a CSV file
+    ofstream file(filename);
+    if (!file.is_open()) return -1;
+    file << "Name, Salary, Bonus" << endl;
+    file << "SC, 293, 28" << endl;
+    file << "KL, 1810, 48" << endl;
+    file << "NJ, 2710, 41" << endl;
+    file << "WY, 125, 61" << endl;
+    file.close();
+
+    // Read the CSV file
+    cx::CSVReader reader;
+    if (!reader.open(filename)) return -1;
+    if (reader.size() != 5) return -1;
+    if (reader.front().size() != 3) return -1;
+    cx::CSVReader::CSVDouble data = reader.extract(1, { 1, 2 });
+
+    cout << "### Test cx::CSVReader" << endl;
+    for (int i = 0; i < data.size(); i++)
+        cout << "A person " << i + 1 << " will receive USD " << data[i][0] + data[i][1] << "." << endl;
     return 0;
 }
 
@@ -206,10 +239,11 @@ int testKeyCodes()
 
 int main()
 {
-    testAlgorithm();
-    compareVideoWriter();
-    testAngularOperations();
-    testLowerCase();
-    testKeyCodes();
+    if (testAlgorithm() < 0) return -1;
+    if (compareVideoWriter() < 0) return -1;
+    if (testAngularOperations() < 0) return -1;
+    if (testStringOperations() < 0) return -1;
+    if (testCSVReader() < 0) return -1;
+    if (testKeyCodes() < 0) return -1;
     return 0;
 }
