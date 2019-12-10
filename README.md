@@ -4,9 +4,9 @@ _OpenCX_ aims to provide extended functionality and tools to OpenCV for more con
 * Homepage: <https://github.com/sunglok/opencx>
 
 ### File Description
-* `opencx.hpp` includes all functionalities of CVX
-* `example.cpp` contains examples of using CVX.
-* `README.md` is this file which describes basic introduction of CVX.
+* `opencx.hpp` includes all functionalities of OpenCX
+* `cx_example.cpp` contains examples of using OpenCX.
+* `README.md` is this file which describes basic introduction of OpenCX.
 
 ### License
 * [Beerware](http://en.wikipedia.org/wiki/Beerware)
