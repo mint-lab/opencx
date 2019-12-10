@@ -4,7 +4,8 @@ _OpenCX_ aims to provide extended functionality and tools to OpenCV for more con
 * Homepage: <https://github.com/sunglok/opencx>
 
 ### File Description
-* `opencx.hpp` includes all functionalities of OpenCX
+* `opencx.hpp` includes my extension to OpenCV
+* `opensx.hpp` includes my extension which does not depend on OpenCV
 * `cx_example.cpp` contains examples of using OpenCX.
 * `README.md` is this file which describes basic introduction of OpenCX.
 

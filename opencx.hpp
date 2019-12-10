@@ -9,7 +9,7 @@
  * - Homepage: https://github.com/sunglok/opencx
  *
  * @author  Sunglok Choi (http://sites.google.com/site/sunglok)
- * @version 0.2 (05/23/2019)
+ * @version 0.3 (12/10/2019)
  */
 
 /**
@@ -24,9 +24,8 @@
 #ifndef __OPEN_CX__
 #define __OPEN_CX__
 
+#include "opensx.hpp"
 #include "opencv2/opencv.hpp"
-#include <string>
-#include <fstream>
 
 #ifndef CX_LOAD_PARAM_TO
 /** A macro function to load a value from cv::FileNode */
@@ -71,7 +70,7 @@ namespace cx
          * @param filename The filename to read parameters
          * @return Result of success (true) or failure (false)
          */
-        int loadParam(const char* filename)
+        int loadParam(const std::string& filename)
         {
             cv::FileStorage fs(filename, cv::FileStorage::READ);
             if (!fs.isOpened()) return false;
@@ -84,7 +83,7 @@ namespace cx
          * @param filename The filename to write parameters
          * @return True if successful (false if failed)
          */
-        bool saveParam(const char* filename)
+        bool saveParam(const std::string& filename)
         {
             cv::FileStorage fs(filename, cv::FileStorage::WRITE);
             if (!fs.isOpened()) return false;
@@ -312,125 +311,6 @@ namespace cx
         if (radian < -CV_PI) radian += 2 * CV_PI;
         return radian;
     }
-
-    /**
-     * Remove space at the left of the given string
-     * @param text The given string
-     * @return The trimmed string
-     */
-    inline std::string trimLeft(std::string text)
-    {
-        text.erase(text.begin(), std::find_if(text.begin(), text.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-        return text;
-    }
-
-    /**
-     * Remove space at the right of the given string
-     * @param text The given string
-     * @return The trimmed string
-     */
-    inline std::string trimRight(std::string text)
-    {
-        text.erase(std::find_if(text.rbegin(), text.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), text.end());
-        return text;
-    }
-
-    /**
-     * Remove space at the left and right of the given string
-     * @param text The given string
-     * @return The trimmed string
-     */
-    inline std::string trimBoth(std::string text) { return trimLeft(trimRight(text)); }
-
-    /**
-     * Make the given string to its lower cases
-     * @param text The given string
-     * @return The transformed string with lower cases
-     */
-    inline std::string toLowerCase(std::string text)
-    {
-        std::transform(text.begin(), text.end(), text.begin(), [](unsigned char c) { return std::tolower(c); });
-        return text;
-    }
-
-    /**
-     * @brief A CSV File Reader
-     *
-     * A CSV file is a popular text file format for reading and writing tubular data.
-     * It is also supported by many other applications such as Microsoft Excel and Open Office.
-     * This is an extension of a 2D vector of string with additional functions for reading a CSV file and extracting its columns as a 2D vector of double.
-     */
-    class CSVReader : public std::vector<std::vector<std::string>>
-    {
-    public:
-        /** A type for 2D vector of double */
-        typedef std::vector<std::vector<double>> CSVDouble;
-
-        /**
-         * Open a CSV file
-         * @param csv_file The filename to read
-         * @param separator A character which separate each column
-         * @return True if successful (false if failed)
-         */
-        bool open(const std::string& csv_file, char separator = ',')
-        {
-            std::ifstream file(csv_file);
-            if (!file.is_open()) return false;
-
-            this->clear();
-            std::string line;
-            while (getline(file, line))
-            {
-                std::vector<std::string> datum;
-                std::string element;
-                std::stringstream temp(line);
-                while (getline(temp, element, separator))
-                    datum.push_back(trimBoth(element));
-                this->push_back(datum);
-            }
-            return true;
-        }
-
-        /**
-         * Extract the desired columns as a 2D vector of double
-         * @param row_start A starting row to skip headers
-         * @param columns The desired columns to extract
-         * @param invalid_val The value to represent invalid (e.g. non-numeric) elements
-         * @return The selected columns as a 2D vector of double
-         */
-        CSVDouble extract(int row_start = 0, const std::vector<int> columns = std::vector<int>(), double invalid_val = std::numeric_limits<double>::quiet_NaN())
-        {
-            CSVDouble data;
-            if (!this->empty())
-            {
-                // Select all columns if the given is empty
-                std::vector<int> col_select = columns;
-                if (col_select.empty())
-                {
-                    int idx = 0;
-                    col_select.resize(this->front().size());
-                    std::fill(col_select.begin(), col_select.end(), idx++);
-                }
-
-                // Extract the selected columns
-                for (auto row = row_start; row < this->size(); row++)
-                {
-                    const std::vector<std::string>& row_data = this->at(row);
-                    if (row_data.empty()) continue;
-                    std::vector<double> vals;
-                    for (auto col = col_select.begin(); col != col_select.end(); col++)
-                    {
-                        double val = invalid_val;
-                        try { val = std::stod(row_data[*col]); }
-                        catch (std::exception e) { }
-                        vals.push_back(val);
-                    }
-                    data.push_back(vals);
-                }
-            }
-            return data;
-        }
-    };
 
     /** A color code for black */
     const cv::Vec3b COLOR_BLACK(0, 0, 0);

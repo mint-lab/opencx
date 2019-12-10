@@ -10,6 +10,49 @@
 
 using namespace std;
 
+int testStringOperations(const string& text = "\t  OpenCX makes OpenCV v4 easier!\n  ")
+{
+    cout << "### String Trimming" << endl;
+    cout << "* Original text: " << text << endl;
+    cout << "* Left-trimmed text: " << cx::trimLeft(text) << endl;
+    cout << "* Right-trimmed text: " << cx::trimRight(text) << endl;
+    cout << "* Both-trimmed text: " << cx::trimBoth(text) << endl;
+    cout << endl;
+
+    cout << "### String toLowerCase" << endl;
+    cout << "* Original text: " << cx::trimBoth(text) << endl;
+    cout << "* Transformed text: " << cx::toLowerCase(cx::trimBoth(text)) << endl;
+    cout << endl;
+    return 0;
+}
+
+int testCSVReader(const string& filename = "cx_example.csv")
+{
+    // Generate a CSV file
+    ofstream file(filename);
+    if (!file.is_open()) return -1;
+    file << "Name, ID, Salary, Bonus" << endl;
+    file << "SC, 83, 29.3, 2.8" << endl;
+    file << "KL, 65, 18.10, 4.8" << endl;
+    file << "NJ, 6, 27.10, 4.1" << endl;
+    file << "WY, 4, 12.5, 6.1" << endl;
+    file.close();
+
+    // Read the CSV file
+    cx::CSVReader reader;
+    if (!reader.open(filename)) return -1;
+    if (reader.size() != 5) return -1;
+    if (reader.front().size() != 4) return -1;
+    cx::CSVReader::Int2D ids = reader.extInt2D(1, { 1 });
+    cx::CSVReader::Double2D data = reader.extDouble2D(1, { 2, 3 });
+
+    cout << "### Test cx::CSVReader" << endl;
+    for (int i = 0; i < data.size(); i++)
+        cout << "A person (ID: " << ids[i][0] << ") will receive USD " << data[i][0] + data[i][1] << "." << endl;
+    cout << endl;
+    return 0;
+}
+
 // An example to use 'cx::Algorithm'
 class NoiseGenerator : public cx::Algorithm
 {
@@ -74,7 +117,7 @@ pair<double, double> calcMeanVar(NoiseGenerator& generator, int n)
     return make_pair(avg, var);
 }
 
-int testAlgorithm(const char* filename = "noise_generator.yml", int n = 1000)
+int testAlgorithm(const std::string& filename = "noise_generator.yml", int n = 1000)
 {
     cout << "### Test cx::Algorithm" << endl;
     NoiseGenerator generator;
@@ -125,6 +168,7 @@ int testAlgorithm(const char* filename = "noise_generator.yml", int n = 1000)
     cout << "* Name: " << generator.getName() << endl;
     cout << "  * Mean: " << test6.first << endl;
     cout << "  * Variance: " << test6.second << endl;
+    cout << endl;
 
     return 0;
 }
@@ -176,47 +220,6 @@ int testAngularOperations()
     return 0;
 }
 
-int testStringOperations(const string& text = "\t  OpenCX makes OpenCV v4 easier!\n  ")
-{
-    cout << "### String Trimming" << endl;
-    cout << "* Original text: " << text << endl;
-    cout << "* Left-trimmed text: " << cx::trimLeft(text) << endl;
-    cout << "* Right-trimmed text: " << cx::trimRight(text) << endl;
-    cout << "* Both-trimmed text: " << cx::trimBoth(text) << endl;
-    cout << endl;
-
-    cout << "### String toLowerCase" << endl;
-    cout << "* Original text: " << cx::trimBoth(text) << endl;
-    cout << "* Transformed text: " << cx::toLowerCase(cx::trimBoth(text)) << endl;
-    cout << endl;
-    return 0;
-}
-
-int testCSVReader(const string& filename = "cx_example.csv")
-{
-    // Generate a CSV file
-    ofstream file(filename);
-    if (!file.is_open()) return -1;
-    file << "Name, Salary, Bonus" << endl;
-    file << "SC, 293, 28" << endl;
-    file << "KL, 1810, 48" << endl;
-    file << "NJ, 2710, 41" << endl;
-    file << "WY, 125, 61" << endl;
-    file.close();
-
-    // Read the CSV file
-    cx::CSVReader reader;
-    if (!reader.open(filename)) return -1;
-    if (reader.size() != 5) return -1;
-    if (reader.front().size() != 3) return -1;
-    cx::CSVReader::CSVDouble data = reader.extract(1, { 1, 2 });
-
-    cout << "### Test cx::CSVReader" << endl;
-    for (int i = 0; i < data.size(); i++)
-        cout << "A person " << i + 1 << " will receive USD " << data[i][0] + data[i][1] << "." << endl;
-    return 0;
-}
-
 int testKeyCodes()
 {
     cout << "### Key Codes for cv::waitKeyEx()" << endl;
@@ -239,11 +242,15 @@ int testKeyCodes()
 
 int main()
 {
+    // Test functionalities in 'opensx.hpp'
+    if (testStringOperations() < 0) return -1;
+    if (testCSVReader() < 0) return -1;
+
+    // Test functionalities in 'opencx.hpp'
     if (testAlgorithm() < 0) return -1;
     if (compareVideoWriter() < 0) return -1;
     if (testAngularOperations() < 0) return -1;
-    if (testStringOperations() < 0) return -1;
-    if (testCSVReader() < 0) return -1;
     if (testKeyCodes() < 0) return -1;
+
     return 0;
 }
