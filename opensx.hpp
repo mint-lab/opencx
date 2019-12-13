@@ -84,16 +84,19 @@ namespace cx
      *
      * A CSV file is a popular text file format for reading and writing tubular data.
      * It is also supported by many other applications such as Microsoft Excel and Open Office.
-     * This is an extension of a 2D vector of string with additional functions for reading a CSV file and extracting its columns as a 2D vector of double.
+     * This is an extension of a 2D vector of string with additional functions for reading a CSV file and extracting its columns as a 2D vector of doubles (a.k.a. float64) or integers (a.k.a. int32) or strings.
      */
     class CSVReader : public std::vector<std::vector<std::string>>
     {
     public:
-        /** A type for 2D vector of double */
+        /** A type for 2D vector of strings */
+        typedef CSVReader String2D;
+
+        /** A type for 2D vector of doubles */
         typedef std::vector<std::vector<double>> Double2D;
 
-        /** A type for 2D vector of int */
-        typedef std::vector<std::vector<double>> Int2D;
+        /** A type for 2D vector of integers */
+        typedef std::vector<std::vector<int>> Int2D;
 
         /**
          * Open a CSV file
@@ -121,11 +124,44 @@ namespace cx
         }
 
         /**
-         * Extract the desired columns as a 2D vector of double
+         * Extract the desired columns as a 2D vector of strings
          * @param row_start A starting row to skip headers
          * @param columns The desired columns to extract
          * @param invalid_val The value to represent invalid (e.g. non-numeric) elements
-         * @return The selected columns as a 2D vector of double
+         * @return The selected columns as a 2D vector of strings
+         */
+        String2D extString2D(int row_start = 0, const std::vector<int> columns = std::vector<int>(), const std::string& invalid_val = "None")
+        {
+            String2D data;
+            if (!this->empty())
+            {
+                // Select all columns if the given is empty
+                std::vector<int> col_select = columns;
+                if (col_select.empty()) col_select = getColumns(this->front().size());
+
+                // Extract the selected columns
+                for (auto row = row_start; row < this->size(); row++)
+                {
+                    const std::vector<std::string>& row_data = this->at(row);
+                    if (row_data.empty()) continue;
+                    std::vector<std::string> vals;
+                    for (auto col = col_select.begin(); col != col_select.end(); col++)
+                    {
+                        if (row_data.size() <= *col) vals.push_back(row_data[*col]);
+                        else vals.push_back(invalid_val);
+                    }
+                    data.push_back(vals);
+                }
+            }
+            return data;
+        }
+
+        /**
+         * Extract the desired columns as a 2D vector of doubles (a.k.a. float64)
+         * @param row_start A starting row to skip headers
+         * @param columns The desired columns to extract
+         * @param invalid_val The value to represent invalid (e.g. non-numeric) elements
+         * @return The selected columns as a 2D vector of doubles
          */
         Double2D extDouble2D(int row_start = 0, const std::vector<int> columns = std::vector<int>(), double invalid_val = std::numeric_limits<double>::quiet_NaN())
         {
@@ -134,12 +170,7 @@ namespace cx
             {
                 // Select all columns if the given is empty
                 std::vector<int> col_select = columns;
-                if (col_select.empty())
-                {
-                    int idx = 0;
-                    col_select.resize(this->front().size());
-                    std::fill(col_select.begin(), col_select.end(), idx++);
-                }
+                if (col_select.empty()) col_select = getColumns(this->front().size());
 
                 // Extract the selected columns
                 for (auto row = row_start; row < this->size(); row++)
@@ -150,7 +181,11 @@ namespace cx
                     for (auto col = col_select.begin(); col != col_select.end(); col++)
                     {
                         double val = invalid_val;
-                        try { val = std::stod(row_data[*col]); }
+                        try
+                        {
+                            if (row_data.size() <= *col)
+                                val = std::stod(row_data[*col]);
+                        }
                         catch (std::exception e) { }
                         vals.push_back(val);
                     }
@@ -161,11 +196,11 @@ namespace cx
         }
 
         /**
-         * Extract the desired columns as a 2D vector of double
+         * Extract the desired columns as a 2D vector of integers (a.k.a. int32)
          * @param row_start A starting row to skip headers
          * @param columns The desired columns to extract
          * @param invalid_val The value to represent invalid (e.g. non-numeric) elements
-         * @return The selected columns as a 2D vector of double
+         * @return The selected columns as a 2D vector of integers
          */
         Int2D extInt2D(int row_start = 0, const std::vector<int> columns = std::vector<int>(), int invalid_val = -1)
         {
@@ -174,23 +209,22 @@ namespace cx
             {
                 // Select all columns if the given is empty
                 std::vector<int> col_select = columns;
-                if (col_select.empty())
-                {
-                    int idx = 0;
-                    col_select.resize(this->front().size());
-                    std::fill(col_select.begin(), col_select.end(), idx++);
-                }
+                if (col_select.empty()) col_select = getColumns(this->front().size());
 
                 // Extract the selected columns
                 for (auto row = row_start; row < this->size(); row++)
                 {
                     const std::vector<std::string>& row_data = this->at(row);
                     if (row_data.empty()) continue;
-                    std::vector<double> vals;
+                    std::vector<int> vals;
                     for (auto col = col_select.begin(); col != col_select.end(); col++)
                     {
                         int val = invalid_val;
-                        try { val = std::stoi(row_data[*col]); }
+                        try
+                        {
+                            if (row_data.size() <= *col)
+                                val = std::stoi(row_data[*col]);
+                        }
                         catch (std::exception e) { }
                         vals.push_back(val);
                     }
@@ -199,6 +233,21 @@ namespace cx
             }
             return data;
         }
+
+        /**
+         * Get a permutation of the given length, starting value, and step
+         * @param size The length of the permutation
+         * @param start The given starting value
+         * @param step The given step
+         * @return A series of integers
+         */
+        static std::vector<int> getColumns(size_t size, int start = 0, int step = 1)
+        {
+            std::vector<int> permutation(size);
+            std::fill(permutation.begin(), permutation.end(), start += step);
+            return permutation;
+        }
+
     }; // End of 'CSVReader'
 } // End of 'cx'
 

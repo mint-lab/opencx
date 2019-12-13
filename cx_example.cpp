@@ -43,13 +43,19 @@ int testCSVReader(const string& filename = "cx_example.csv")
     if (!reader.open(filename)) return -1;
     if (reader.size() != 5) return -1;
     if (reader.front().size() != 4) return -1;
+    cx::CSVReader::String2D name = reader.extString2D(1, { 0 });
     cx::CSVReader::Int2D ids = reader.extInt2D(1, { 1 });
     cx::CSVReader::Double2D data = reader.extDouble2D(1, { 2, 3 });
 
     cout << "### Test cx::CSVReader" << endl;
     for (int i = 0; i < data.size(); i++)
-        cout << "A person (ID: " << ids[i][0] << ") will receive USD " << data[i][0] + data[i][1] << "." << endl;
+        cout << "A person (name: " << name[i][0] << ", ID: " << ids[i][0] << ") will receive USD " << data[i][0] + data[i][1] << "." << endl;
     cout << endl;
+
+    // Test default arguments
+    cx::CSVReader::String2D all_with_header = reader.extString2D();
+    if (all_with_header.size() != 5) return -1;
+    if (all_with_header.front().size() != 4) return -1;
     return 0;
 }
 
