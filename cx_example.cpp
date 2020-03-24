@@ -50,10 +50,10 @@ int testCSVReader(const string& filename = "cx_example.csv")
     if (all_with_header.front().size() != 4) return -1;
 
     cout << "### Test cx::CSVReader" << endl;
-    for (int i = 0; i < all_with_header.size(); i++)
+    for (size_t i = 0; i < all_with_header.size(); i++)
     {
         cout << "| ";
-        for (int j = 0; j < all_with_header[i].size(); j++)
+        for (size_t j = 0; j < all_with_header[i].size(); j++)
             cout << all_with_header[i][j] << " | ";
         cout << endl;
     }
@@ -67,7 +67,7 @@ int testCSVReader(const string& filename = "cx_example.csv")
     if (name.front().size() != 1 || ids.front().size() != 1 || data.front().size() != 2) return -1;
 
     cout << "### Test cx::CSVReader" << endl;
-    for (int i = 0; i < data.size(); i++)
+    for (size_t i = 0; i < data.size(); i++)
         cout << "A person (name: " << name[i][0] << ", ID: " << ids[i][0] << ") will receive USD " << data[i][0] + data[i][1] << "." << endl;
     cout << endl;
     return 0;
@@ -80,7 +80,8 @@ public:
     NoiseGenerator() : m_rng(cv::getTickCount())
     {
         m_name = "Normal";
-        m_uniform_range = (0, 0);
+        m_uniform_range[0] = 0;
+        m_uniform_range[1] = 0;
         m_gauss_mean = 0;
         m_gauss_stdev = 1;
     }
