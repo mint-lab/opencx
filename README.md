@@ -15,13 +15,10 @@ _OpenCX_ aims to provide extended functionality and tools to [OpenCV](https://op
 
 ### Running Examples
 1. `git clone https://github.com/sunglok/opencx.git`: Clone OpenCX repository
-
 2. `mkdir opecx/build && cd opencx/build`: Make a build directory
-
 3. `cmake ..`: Prepare to build (generating `Makefile` file or [MSVS](https://visualstudio.microsoft.com/) solution/project files)
    * In Windows, you need to specify the location of OpenCV (where `OpenCVConfig.cmake` is exist) as follows: `cmake .. -D OpenCV_DIR:PATH="C:\Your\OpenCV\Dir"`.
    * You can use [cmake-gui](https://cmake.org/runningcmake/) for easier CMake configuration.
-
 4. `make`: Build examples
    * In Windows, please open `opencx.sln` and build projects.
 
