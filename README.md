@@ -9,7 +9,7 @@ _OpenCX_ aims to provide extended functionality and tools to [OpenCV](https://op
 * `ekf.hpp`: My implementation of the [extended Kalman filter](http://en.wikipedia.org/wiki/Extended_Kalman_filter)
 * `example_cx.cpp`: Examples using `opencx.hpp`
 * `example_sx.cpp`: Examples using `opensx.hpp`
-* `example_ekf.cpp`: Pose estimation examples using `cv::KalmanFilter` and `cx::EKF`
+* `example_ekf.cpp`: Pose estimation examples for comparison of `cx::EKF` and `cv::KalmanFilter`
 * `README.md`: A brief introduction to OpenCX
 * `CMakeList.txt`: A [CMake](https://cmake.org/) script to build examples
 
