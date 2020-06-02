@@ -33,6 +33,11 @@ namespace cx
     {
     public:
         /**
+         * The virtual destructor
+         */
+        virtual ~EKF() { }
+
+        /**
          * Initialize the state variable and covariance
          * @param state_dim The dimension of state variable
          * @return True if successful (false if failed)
