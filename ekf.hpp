@@ -94,13 +94,13 @@ namespace cx
 
         /**
          * Correct the state variable and covariance with the given measurement
-         * @param measurement The given measurement
+         * @param measure The given measurement
          * @return True if successful (false if failed)
          */
-        virtual bool correct(cv::InputArray measurement)
+        virtual bool correct(cv::InputArray measure)
         {
             // Calculate Kalman gain
-            cv::Mat z = measurement.getMat();
+            cv::Mat z = measure.getMat();
             if (z.rows < z.cols) z = z.t();
             cv::Mat H = observeJacobian(m_state_vec, z);
             cv::Mat R = observeNoiseCov(m_state_vec, z);
@@ -121,12 +121,12 @@ namespace cx
 
         /**
          * Calculate squared <a href="https://en.wikipedia.org/wiki/Mahalanobis_distance">Mahalanobis distance</a> of the given measurement
-         * @param measurement The given measurement
+         * @param measure The given measurement
          * @return The squared Mahalanobis distance
          */
-        virtual double checkMeasurement(cv::InputArray measurement)
+        virtual double checkMeasurement(cv::InputArray measure)
         {
-            cv::Mat z = measurement.getMat();
+            cv::Mat z = measure.getMat();
             if (z.rows < z.cols) z = z.t();
             cv::Mat delta = z - observeModel(m_state_vec, z);
             cv::Mat H = observeJacobian(m_state_vec, z);
@@ -201,26 +201,26 @@ namespace cx
         /**
          * The state observation function
          * @param state The state variable
-         * @param measurement The given measurement
+         * @param measure The given measurement
          * @return The expected measurement
          */
-        virtual cv::Mat observeModel(const cv::Mat& state, const cv::Mat& measurement) = 0;
+        virtual cv::Mat observeModel(const cv::Mat& state, const cv::Mat& measure) = 0;
 
         /**
          * Return the Jacobian of the state observation function
          * @param state The state variable
-         * @param measurement The given measurement
+         * @param measure The given measurement
          * @return The Jacobian of the state observation function
          */
-        virtual cv::Mat observeJacobian(const cv::Mat& state, const cv::Mat& measurement) = 0;
+        virtual cv::Mat observeJacobian(const cv::Mat& state, const cv::Mat& measure) = 0;
 
         /**
          * Return the state observation noise
          * @param state The state variable
-         * @param measurement The given measurement
+         * @param measure The given measurement
          * @return The state observation noise
          */
-        virtual cv::Mat observeNoiseCov(const cv::Mat& state, const cv::Mat& measurement) = 0;
+        virtual cv::Mat observeNoiseCov(const cv::Mat& state, const cv::Mat& measure) = 0;
 
         /** The state variable */
         cv::Mat m_state_vec;
