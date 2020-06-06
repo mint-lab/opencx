@@ -64,65 +64,46 @@ public:
     }
 
 protected:
-    virtual cv::Mat transitModel(const cv::Mat& state, const cv::Mat& control)
+    virtual cv::Mat transitFunc(const cv::Mat& state, const cv::Mat& control, cv::Mat& jacobian, cv::Mat& noise)
     {
         const double dt = control.at<double>(0);
         const double vt = state.at<double>(3) * dt;
         const double wt = state.at<double>(4) * dt;
-        return (cv::Mat_<double>(5, 1) <<
-            state.at<double>(0) + vt * cos(state.at<double>(2) + wt / 2),
-            state.at<double>(1) + vt * sin(state.at<double>(2) + wt / 2),
+        const double c = cos(state.at<double>(2) + wt / 2), s = sin(state.at<double>(2) + wt / 2);
+        cv::Mat func = (cv::Mat_<double>(5, 1) <<
+            state.at<double>(0) + vt * c,
+            state.at<double>(1) + vt * s,
             state.at<double>(2) + wt,
             state.at<double>(3),
             state.at<double>(4));
-    }
-
-    virtual cv::Mat transitJacobian(const cv::Mat& state, const cv::Mat& control)
-    {
-        const double dt = control.at<double>(0);
-        const double vt = state.at<double>(3) * dt;
-        const double th = state.at<double>(2) + state.at<double>(4) * dt / 2;
-        const double c = cos(th), s = sin(th);
-        return (cv::Mat_<double>(5, 5) <<
+        jacobian = (cv::Mat_<double>(5, 5) <<
             1, 0, -vt * s, dt * c, -vt * dt * s / 2,
             0, 1,  vt * c, dt * s,  vt * dt * c / 2,
             0, 0, 1, 0, dt,
             0, 0, 0, 1, 0,
             0, 0, 0, 0, 1);
-    }
-
-    virtual cv::Mat transitNoiseCov(const cv::Mat& state, const cv::Mat& control)
-    {
-        const double dt = control.at<double>(0);
-        const double vt = state.at<double>(3) * dt;
-        const double th = state.at<double>(2) + state.at<double>(4) * dt / 2;
-        const double c = cos(th), s = sin(th);
         cv::Mat W = (cv::Mat_<double>(5, 1) <<
             state.at<double>(3) * c - vt * s,
             state.at<double>(3) * s + vt * c,
             state.at<double>(4),
             DBL_EPSILON,
             DBL_EPSILON);
-        return W * m_ctrl_noise * W.t();
+        noise = W * m_ctrl_noise * W.t();
+        return func;
     }
 
-    virtual cv::Mat observeModel(const cv::Mat& state, const cv::Mat& measure)
+    virtual cv::Mat observeFunc(const cv::Mat& state, const cv::Mat& measure, cv::Mat& jacobian, cv::Mat& noise)
     {
-        const double th = state.at<double>(2) + m_gps_offset(1);
-        return (cv::Mat_<double>(2, 1) <<
-            state.at<double>(0) + m_gps_offset(0) * cos(th),
-            state.at<double>(1) + m_gps_offset(0) * sin(th));
+        const double c = cos(state.at<double>(2) + m_gps_offset(1)), s = sin(state.at<double>(2) + m_gps_offset(1));
+        cv::Mat func = (cv::Mat_<double>(2, 1) <<
+            state.at<double>(0) + m_gps_offset(0) * c,
+            state.at<double>(1) + m_gps_offset(0) * s);
+        jacobian = (cv::Mat_<double>(2, 5) <<
+            1, 0, -m_gps_offset(0) * s, 0, 0,
+            0, 1,  m_gps_offset(0) * c, 0, 0);
+        noise = m_gps_noise;
+        return func;
     }
-
-    virtual cv::Mat observeJacobian(const cv::Mat& state, const cv::Mat& measure)
-    {
-        const double th = state.at<double>(2) + m_gps_offset(1);
-        return (cv::Mat_<double>(2, 5) <<
-            1, 0, -m_gps_offset(0) * sin(th), 0, 0,
-            0, 1,  m_gps_offset(0) * cos(th), 0, 0);
-    };
-
-    virtual cv::Mat observeNoiseCov(const cv::Mat& state, const cv::Mat& measure) { return m_gps_noise; }
 
     double m_ctrl_noise;
 
@@ -163,8 +144,7 @@ public:
             // Predict the state
             const double vt = statePost.at<double>(3) * dt;
             const double wt = statePost.at<double>(4) * dt;
-            const double th = statePost.at<double>(2) + statePost.at<double>(4) * dt / 2;
-            const double c = cos(th), s = sin(th);
+            const double c = cos(statePost.at<double>(2) + wt / 2), s = sin(statePost.at<double>(2) + wt / 2);
             transitionMatrix = (cv::Mat_<double>(5, 5) <<
                 1, 0, -vt * s, dt * c, -vt * dt * s / 2,
                 0, 1,  vt * c, dt * s,  vt * dt * c / 2,
@@ -180,8 +160,8 @@ public:
             processNoiseCov = W * m_ctrl_noise * W.t();
             predict();
             statePre = (cv::Mat_<double>(5, 1) <<
-                statePost.at<double>(0) + vt * cos(statePost.at<double>(2) + wt / 2),
-                statePost.at<double>(1) + vt * sin(statePost.at<double>(2) + wt / 2),
+                statePost.at<double>(0) + vt * c,
+                statePost.at<double>(1) + vt * s,
                 statePost.at<double>(2) + wt,
                 statePost.at<double>(3),
                 statePost.at<double>(4));
@@ -189,15 +169,16 @@ public:
         m_prev_time = timestamp;
 
         // Correct the state
-        const double th = statePre.at<double>(2) + m_gps_offset(1);
+        const double c = cos(statePre.at<double>(2) + m_gps_offset(1)), s = sin(statePre.at<double>(2) + m_gps_offset(1));
         measurementMatrix = (cv::Mat_<double>(2, 5) <<
-            1, 0, -m_gps_offset(0) * sin(th), 0, 0,
-            0, 1,  m_gps_offset(0) * cos(th), 0, 0);
+            1, 0, -m_gps_offset(0) * s, 0, 0,
+            0, 1,  m_gps_offset(0) * c, 0, 0);
+        // 'measurementNoiseCov' is constant, so it is not necessary to calculate again.
         correct(cv::Mat(gps));
-        cv::Mat expect = (cv::Mat_<double>(2, 1) <<
-            statePre.at<double>(0) + m_gps_offset(0) * cos(th),
-            statePre.at<double>(1) + m_gps_offset(0) * sin(th));
-        temp5 = cv::Mat(gps) - expect;
+        cv::Mat expectation = (cv::Mat_<double>(2, 1) <<
+            statePre.at<double>(0) + m_gps_offset(0) * c,
+            statePre.at<double>(1) + m_gps_offset(0) * s);
+        temp5 = cv::Mat(gps) - expectation;
         statePost = statePre + gain * temp5;
         return true;
     }
